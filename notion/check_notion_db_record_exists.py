@@ -1,10 +1,11 @@
 import os
 from functions.cache import get_database_data
 
-from functions.console import log
-
 
 def check_notion_db_record_exists(notion, page) -> bool:
+    """
+    Checks if a record exists in the Notion database
+    """
 
     existing_record = False
     notion_database_id = os.environ['NOTION_DATABASE_ID']

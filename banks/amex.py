@@ -3,12 +3,15 @@ from datetime import datetime
 from notion.add_relation import add_relation
 from notion.create_notion_db_record import create_notion_db_record_background
 
-from notion.create_notion_page import create_notion_page
+from notion.create_page import create_transaction_page
 
 
 def send_to_notion(notion, file_path):
+    """
+    Formats a csv file generated from American Express to Notion
+    """
     data = []
-    with open(file_path, 'r') as file:
+    with open(file_path, 'r', encoding='utf8') as file:
         reader = csv.reader(file, delimiter=',')
         for row in reader:
             data.append(row)
@@ -36,8 +39,8 @@ def send_to_notion(notion, file_path):
         ref = element['Referanse']
 
         # create a notion page
-        page = create_notion_page(
-            dato=dato, Beskrivelse=tekst, Beløp=belop, ref=ref)
+        page = create_transaction_page(
+            dato=dato, description=tekst, amount=belop, reference=ref)
 
         add_relation(notion, page, "Bank", "American Express")
         create_notion_db_record_background(notion, page)

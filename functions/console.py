@@ -3,6 +3,9 @@ import inspect
 
 
 def log(message, status=None):
+    """
+    Logs a message to the console.
+    """
     time_now = datetime.now().strftime("%H:%M:%S")
     file_name = inspect.stack()[1].filename.split("/")[-1]
     file_name = file_name + " " * (40 - len(file_name))

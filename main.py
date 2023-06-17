@@ -12,14 +12,14 @@ check_valid_cli_args()
 load_dotenv()
 
 notion = Client(auth=os.getenv('NOTION_API_KEY'))
-filePath = os.sys.argv[1]
-bankType = os.sys.argv[2]
+FILE_PATH = os.sys.argv[1]
+BANK_TYPE = os.sys.argv[2]
 
-if bankType == "dnb":
-    dnb_send_to_notion(notion, filePath)
+if BANK_TYPE == "dnb":
+    dnb_send_to_notion(notion, FILE_PATH)
 
-elif bankType == "danske":
-    danske_bank_send_to_notion(notion, filePath)
+elif BANK_TYPE == "danske":
+    danske_bank_send_to_notion(notion, FILE_PATH)
 
-elif bankType == "amex":
-    amex_send_to_notion(notion, filePath)
+elif BANK_TYPE == "amex":
+    amex_send_to_notion(notion, FILE_PATH)

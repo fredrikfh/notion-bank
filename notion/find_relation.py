@@ -4,6 +4,7 @@ from notion.cache import get_database_data
 
 
 def find_operator(notion, text):
+    """Find operator in Notion database."""
     operators = get_database_data(notion, os.getenv(
         "NOTION_OPERATOR_DATABASE_ID")).get("results")
     matching_operator_ids = []

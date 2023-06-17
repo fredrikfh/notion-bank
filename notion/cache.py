@@ -1,15 +1,20 @@
 import threading
 import time
+
 import cachetools
-from functions.console import log
 from notion_client import Client
+
+from functions.console import log
 
 # Global variables
 cache = cachetools.TTLCache(maxsize=200, ttl=600)
 fetch_lock = threading.Lock()
 
 
-def fetch_data_from_notion(notion: Client, database_id: str, filter_params=None):
+def fetch_data_from_notion(
+        notion: Client,
+        database_id: str,
+        filter_params=None):
     """Fetch data from Notion API."""
     all_data = []
     has_more = True
@@ -17,7 +22,10 @@ def fetch_data_from_notion(notion: Client, database_id: str, filter_params=None)
 
     while has_more:
         database_data = notion.databases.query(
-            database_id, filter=filter_params, start_cursor=start_cursor, page_size=100)
+            database_id,
+            filter=filter_params,
+            start_cursor=start_cursor,
+            page_size=100)
 
         all_data.extend(database_data["results"])
 
@@ -30,7 +38,10 @@ def fetch_data_from_notion(notion: Client, database_id: str, filter_params=None)
     return {"results": all_data}
 
 
-def get_database_data(notion: Client, database_id: str, filter_params=None) -> dict:
+def get_database_data(
+        notion: Client,
+        database_id: str,
+        filter_params=None) -> dict:
     """
     Get data from the cache. If not available, fetch it from Notion API.
 
@@ -54,7 +65,8 @@ def get_database_data(notion: Client, database_id: str, filter_params=None) -> d
                 if cache_key in cache:
                     return cache[cache_key]
 
-                # If the data is not in the cache, fetch it and store it in the cache
+                # If the data is not in the cache, fetch it and store it in the
+                # cache
                 log("Fetching data from Notion API...", "info")
                 cache[cache_key] = fetch_data_from_notion(
                     notion, database_id, filter_params)

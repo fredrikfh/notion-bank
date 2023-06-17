@@ -1,20 +1,20 @@
 import csv
-from datetime import datetime
 import os
+from datetime import datetime
 
-from functions.console import log
 from notion.add_relation import add_relation
-from notion.create_notion_db_record import create_notion_db_record, create_notion_db_record_background
-from notion.create_notion_page import create_notion_page
+from notion.create_notion_db_record import create_notion_db_record
+from notion.create_page import create_transaction_page
 from notion.find_relation import find_operator
-
-from concurrent.futures import wait
 
 # TODO if "Fra Sparekonto AKA" set internal transfer to true
 # TODO relations lookups should be cached
 
 
 def create_operator(notion, database_id, name):
+    """ 
+    Creates a new operator in the database 
+    """
     new_page = {
         "Name": {"title": [{"text": {"content": name}}]}
     }
@@ -23,12 +23,14 @@ def create_operator(notion, database_id, name):
     return created_page['id']
 
 
-def send_to_notion(notion, filePath):
-    # open the csv in filePath
+def send_to_notion(notion, file_path):
+    """
+    open the csv in filePath
+    """
 
     data = []
 
-    with open(filePath, 'r', encoding='iso-8859-1') as file:
+    with open(file_path, 'r', encoding='iso-8859-1') as file:
         reader = csv.reader(file, delimiter=';', quotechar='"')
         for row in reader:
             data.append(row)
@@ -45,16 +47,16 @@ def send_to_notion(notion, filePath):
         underkategori = row[2]
         tekst = row[3]
         beløp = row[4]
-        saldo = row[5]
-        status = row[6]
-        avstemt = row[7]
+        # saldo = row[5]
+        # status = row[6]
+        # avstemt = row[7]
 
         beløp = float(beløp.replace('.', '').replace(',', '.')) if (
             beløp and isinstance(beløp, str)) else 0
 
         # create a notion page
-        page = create_notion_page(dato=dato, Beskrivelse=tekst,
-                                  Beløp=beløp)
+        page = create_transaction_page(dato=dato, description=tekst,
+                                       amount=beløp)
 
         add_relation(notion, page, "Bank", "Danske Bank")
 

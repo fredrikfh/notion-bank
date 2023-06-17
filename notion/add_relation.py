@@ -4,7 +4,12 @@ from notion.find_relation import find_operator
 from functions.console import log
 
 
-def add_relation(notion: Client, record: Dict[str, Any], property: str, relation: str) -> Dict[str, Any]:
+def add_relation(notion: Client,
+                 record: Dict[str,
+                              Any],
+                 record_property: str,
+                 relation: str) -> Dict[str,
+                                        Any]:
     """
     Adds a relation (another record) on the record's property.
 
@@ -19,7 +24,7 @@ def add_relation(notion: Client, record: Dict[str, Any], property: str, relation
     """
     operator = find_operator(notion, relation)
     if operator:
-        record[property] = {"relation": [{"id": operator[0]}]}
+        record[record_property] = {"relation": [{"id": operator[0]}]}
     else:
         # Consider logging or raising an exception here.
         log(f"Warning: Unable to find relation '{relation}'.", "warning")
