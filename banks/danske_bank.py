@@ -14,7 +14,7 @@ from notion.create_page import create_transaction_page
 
 def main(notion, file_path):
     transactions = get_transactions(file_path)
-    pages = create_pages(notion, transactions)
+    pages = create_pages(transactions, notion)
     send_to_notion(notion, pages)
 
 
@@ -56,7 +56,7 @@ def get_transactions(file_path):
     return transactions[1:]
 
 
-def create_pages(notion: Client, transactions):
+def create_pages(transactions, notion: Client | None = None):
     pages = []
     # loop through the data except the first row
     for row in transactions:
@@ -72,13 +72,17 @@ def create_pages(notion: Client, transactions):
         # create a notion page
         page = create_transaction_page(dato=dato, description=tekst,
                                        amount=beløp)
-        if kategori:
-            add_relation(notion, page, "Kategori", kategori)
+        # if kategori and notion:
+        #     add_relation(notion, page, "Kategori", kategori)
 
-        if underkategori:
-            add_relation(notion, page, "Subkategori", underkategori)
+        # if underkategori and notion:
+        #     add_relation(notion, page, "Subkategori", underkategori)
 
         pages.append(page)
+
+    print()
+    print(transactions)
+    print(pages)
     return pages
 
 

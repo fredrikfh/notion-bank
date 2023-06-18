@@ -1,13 +1,5 @@
 from banks.dnb import get_transactions, create_pages
-from notion_client import Client
-from dotenv import load_dotenv
-import os
 
-import pytest
-
-load_dotenv()
-
-notion = Client(auth=os.getenv('NOTION_API_KEY'))
 transactions = get_transactions('tests/fixtures/dnb.txt')
 transactions_expected = [{'Dato': '19.05.2023', 'Forklaring': 'Supermercado Expres ', 'Rentedato': '19.05.2023', 'Ut fra konto': '2500', 'Inn på konto': '', 'belop': -2500.0}, {'Dato': '17.05.2023', 'Forklaring': 'Sopping A ',
                                                                                                                                                                                  'Rentedato': '19.05.2023', 'Ut fra konto': '', 'Inn på konto': '6000', 'belop': 6000.0}, {'Dato': '15.05.2023', 'Forklaring': 'Payment B', 'Rentedato': '15.05.2023', 'Ut fra konto': '126', 'Inn på konto': '', 'belop': -126.0}]
