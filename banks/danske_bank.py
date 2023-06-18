@@ -1,14 +1,21 @@
 import csv
-import os
+# import os
 from datetime import datetime
 
+from notion_client import Client
+
 from notion.add_relation import add_relation
-from notion.create_notion_db_record import create_notion_db_record
+from notion.create_notion_db_record import upload_concurrently
 from notion.create_page import create_transaction_page
-from notion.find_relation import find_operator
+# from notion.find_relation import find_operator
 
 # TODO if "Fra Sparekonto AKA" set internal transfer to true
-# TODO relations lookups should be cached
+
+
+def main(notion, file_path):
+    transactions = get_transactions(file_path)
+    pages = create_pages(notion, transactions)
+    send_to_notion(notion, pages)
 
 
 def create_operator(notion, database_id, name):
@@ -23,33 +30,41 @@ def create_operator(notion, database_id, name):
     return created_page['id']
 
 
-def send_to_notion(notion, file_path):
+def get_transactions(file_path):
     """
-    open the csv in filePath
+    Formats a csv file generated from American Express to Notion
     """
+    transactions = []
 
-    data = []
-
-    with open(file_path, 'r', encoding='iso-8859-1') as file:
+    file_data = []
+    with open(file_path, 'r', encoding='utf-8') as file:
         reader = csv.reader(file, delimiter=';', quotechar='"')
         for row in reader:
-            data.append(row)
+            file_data.append(row)
 
     # remove all whitespace from the data
-    for row in data:
+    for row in file_data:
         for index, item in enumerate(row):
             row[index] = item.strip()
 
+    keys = file_data[0]
+    rows = file_data[1:]
+
+    for row in rows:
+        row_dict = dict(zip(keys, row))
+        transactions.append(row_dict)
+    return transactions[1:]
+
+
+def create_pages(notion: Client, transactions):
+    pages = []
     # loop through the data except the first row
-    for row in data[1:]:
-        dato = datetime.strptime(row[0], "%d.%m.%Y").date()
-        kategori = row[1]
-        underkategori = row[2]
-        tekst = row[3]
-        beløp = row[4]
-        # saldo = row[5]
-        # status = row[6]
-        # avstemt = row[7]
+    for row in transactions:
+        dato = datetime.strptime(row['Dato'], "%d.%m.%Y").date()
+        kategori = row['Kategori']
+        underkategori = row['Underkategori']
+        tekst = row['Tekst']
+        beløp = row['Bel�p']
 
         beløp = float(beløp.replace('.', '').replace(',', '.')) if (
             beløp and isinstance(beløp, str)) else 0
@@ -57,28 +72,21 @@ def send_to_notion(notion, file_path):
         # create a notion page
         page = create_transaction_page(dato=dato, description=tekst,
                                        amount=beløp)
-
-        add_relation(notion, page, "Bank", "Danske Bank")
-
-        # add category relation
         if kategori:
-            categories = find_operator(notion, kategori)
-            if len(categories) > 0:
-                page["Kategori"] = {"relation": [{"id": categories[0]}]}
-            else:
-                category_id = create_operator(notion, os.getenv(
-                    'NOTION_OPERATOR_DATABASE_ID'), kategori)
-                page["Kategori"] = {"relation": [{"id": category_id}]}
+            add_relation(notion, page, "Kategori", kategori)
 
-        # add subcategory relation
         if underkategori:
-            subcategories = find_operator(notion, underkategori)
-            if len(subcategories) > 0:
-                page["Subkategori"] = {"relation": [{"id": subcategories[0]}]}
-            else:
-                category_id = create_operator(notion, os.getenv(
-                    'NOTION_OPERATOR_DATABASE_ID'), underkategori)
-                page["Subkategori"] = {"relation": [{"id": category_id}]}
+            add_relation(notion, page, "Subkategori", underkategori)
 
-        create_notion_db_record(notion, page)
-        # create_notion_db_record_background(notion, page)
+        pages.append(page)
+    return pages
+
+
+def send_to_notion(notion, pages):
+    """
+    open the csv in filePath
+    """
+
+    for page in pages:
+        add_relation(notion, page, "Bank", "Danske Bank")
+        upload_concurrently(notion, page)

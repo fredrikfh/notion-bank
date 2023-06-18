@@ -1,5 +1,4 @@
 import threading
-import time
 
 import cachetools
 from notion_client import Client
@@ -27,11 +26,14 @@ def fetch_data_from_notion(
             start_cursor=start_cursor,
             page_size=100)
 
-        all_data.extend(database_data["results"])
+        results = database_data["results"]  # type: ignore
+        next_cursor = database_data["next_cursor"] or None  # type: ignore
 
-        if "next_cursor" in database_data and database_data["next_cursor"]:
-            log("fetching...", "info")
-            start_cursor = database_data["next_cursor"]
+        all_data.extend(results)
+
+        if next_cursor:
+            log("fetching next page...", "info")
+            start_cursor = next_cursor
         else:
             has_more = False
 
@@ -72,5 +74,3 @@ def get_database_data(
                     notion, database_id, filter_params)
 
                 return cache[cache_key]
-            # wait 1-5 seconds and try again
-            time.sleep(int(time.time()) % 5 + 1)

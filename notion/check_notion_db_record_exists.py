@@ -1,5 +1,5 @@
 import os
-from functions.cache import get_database_data
+from notion.cache import get_database_data
 
 
 def check_notion_db_record_exists(notion, page) -> bool:
