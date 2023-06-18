@@ -1,3 +1,4 @@
 python-dotenv
 notion_client
 cachetools
+requests
