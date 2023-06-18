@@ -1,0 +1,4 @@
+"Dato";"Forklaring";"Rentedato";"Ut fra konto";"Inn på konto"
+"19.05.2023";"Supermercado Expres ";"19.05.2023";2500;""
+"17.05.2023";"Sopping A ";"19.05.2023";"";6000
+"15.05.2023";"Payment B";"15.05.2023";126;""
