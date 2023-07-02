@@ -48,3 +48,4 @@ ENV/
 # Other
 .DS_Store
 txt/*
+bank_statements/*

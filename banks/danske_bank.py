@@ -3,6 +3,7 @@ import csv
 from datetime import datetime
 
 from notion_client import Client
+from functions.console import log
 
 from notion.add_relation import add_relation
 from notion.create_notion_db_record import upload_concurrently
@@ -37,15 +38,31 @@ def get_transactions(file_path):
     transactions = []
 
     file_data = []
-    with open(file_path, 'r', encoding='utf-8') as file:
-        reader = csv.reader(file, delimiter=';', quotechar='"')
-        for row in reader:
-            file_data.append(row)
+    for encoding in ['utf-8', 'latin-1', 'iso-8859-15']:
+        try:
+            with open(file_path, 'r', encoding=encoding) as file:
+                reader = csv.reader(file, delimiter=';', quotechar='"')
+                for row in reader:
+                    file_data.append(row)
+                # No error was raised, so break the loop
+                break
+        except UnicodeDecodeError:
+            log(
+                f"Could not decode file at {file_path} with encoding {encoding}. Trying another encoding.", "warning")
+            continue
+
+    # At this point, file_data has been filled in with the data from the file
+
+    # If none of the encodings worked, raise an exception
+    if not file_data:
+        raise ValueError(
+            f"Could not decode file at {file_path} with any of the tried encodings.")
 
     # remove all whitespace from the data
     for row in file_data:
         for index, item in enumerate(row):
-            row[index] = item.strip()
+            # TODO this is not perfect
+            row[index] = item.replace('�', 'ø').strip()
 
     keys = file_data[0]
     rows = file_data[1:]
@@ -64,7 +81,7 @@ def create_pages(transactions, notion: Client | None = None):
         kategori = row['Kategori']
         underkategori = row['Underkategori']
         tekst = row['Tekst']
-        beløp = row['Bel�p']
+        beløp = row['Beløp']
 
         beløp = float(beløp.replace('.', '').replace(',', '.')) if (
             beløp and isinstance(beløp, str)) else 0
@@ -80,9 +97,9 @@ def create_pages(transactions, notion: Client | None = None):
 
         pages.append(page)
 
-    print()
-    print(transactions)
-    print(pages)
+    # print()
+    # print(transactions)
+    # print(pages)
     return pages
 
 

@@ -16,9 +16,8 @@ Get started with the corresponding [Notion template](https://www.notion.so/).
 
 Download statements from your bank and save them in the `bank_statements` folder.
 
-Then
-
-run `python3 main.py file_path bank_name
+Add all transactions in the folder, run `python3 main.py`
+To run a specific file, run `python3 main.py <file> <bank>`
 
 example: `python3 main.py bank_statements/2021-01-01.csv AMEX`
 
