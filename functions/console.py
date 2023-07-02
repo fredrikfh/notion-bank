@@ -8,8 +8,8 @@ def log(message, status=None):
     """
     time_now = datetime.now().strftime("%H:%M:%S")
     file_name = inspect.stack()[1].filename.split("/")[-1]
-    file_name = file_name + " " * (40 - len(file_name))
-    file_name = file_name[:40]
+    file_name = file_name + " " * (25 - len(file_name))
+    file_name = file_name[:25]
 
     if status == "info":
         print(f"\033[94m{time_now} | {file_name} | {message}\033[0m")
